@@ -1,0 +1,2 @@
+# ansible_epgstation
+AnsibleでEPGStationを導入するやつ
