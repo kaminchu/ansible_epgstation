@@ -2,4 +2,4 @@
 epgstation
 
 [all:vars]
-stage=development
+stage=production

@@ -1,3 +1,5 @@
 ---
 epgstation_port: 8888
 epgstation_mirakurun_path: "http+unix://%2Fvar%2Frun%2Fmirakurun.sock/"
+epgstation_user: user
+epgstation_password: password

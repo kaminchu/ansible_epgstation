@@ -3,12 +3,12 @@
     "serverPort": {{ epgstation_port }},
     "mirakurunPath": "{{ epgstation_mirakurun_path }}",
     "dbType": "sqlite3",
-    "ffmpeg": "/home/ubuntu/chinachu/usr/bin/ffmpeg",
-    "ffprobe": "/home/ubuntu/chinachu/usr/bin/ffprobe",
+    "ffmpeg": "/usr/local/bin/ffmpeg",
+    "ffprobe": "/usr/local/bin/ffprobe",
     "maxEncode": 2,
     "basicAuth": {
-        "user": "user",
-        "password": "1qaz"
+        "user": "{{ epgstation_user }}",
+        "password": "{{ epgstation_user }}",
     },
     "encode": [
         {
