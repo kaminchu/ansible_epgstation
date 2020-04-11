@@ -1,3 +1,97 @@
 ---
-- name: hello
-  command: echo hello
+- name: Install a list of packages
+  apt:
+    pkg:
+    - build-essential
+    - curl
+    - git
+    - vainfo
+    - python-dev
+    state: latest
+    update_cache: yes
+
+#- name: Install a list of packages
+#  command: curl -sL https://deb.nodesource.com/setup_12.x | -E bash -
+
+- name: download setup_nodejs
+  get_url:
+    url: https://deb.nodesource.com/setup_12.x
+    dest: /tmp/setup_nodejs.sh
+
+- name: setup nodejs
+  command: sh /tmp/setup_nodejs.sh
+
+- name: cleanup setup_nodejs
+  file:
+    path: /tmp/setup_nodejs.sh
+    state: absent
+
+
+- name: Install nodejs
+  apt:
+    pkg:
+    - nodejs
+    state: latest
+    update_cache: yes
+
+- name: Install "pm2" node.js package.
+  npm:
+    name: pm2
+    global: yes
+
+- name: pm2 startup
+  command: pm2 startup
+
+- name: download ffmpeg
+  get_url:
+    url: https://johnvansickle.com/ffmpeg/old-releases/ffmpeg-4.2.1-amd64-static.tar.xz
+    dest: /tmp/ffmpeg.tar.xz
+
+- name: make unarchive directory
+  file:
+    path: /tmp/ffmpeg
+    state: directory
+    force: yes
+
+- name: unarchive ffmpeg
+  unarchive:
+    src: /tmp/ffmpeg.tar.xz
+    dest: /tmp/ffmpeg
+    extra_opts:
+      - --strip-components
+      - "1"
+    remote_src: yes
+
+- name: set ffmpeg
+  copy:
+    src: /tmp/ffmpeg/ffmpeg
+    dest: /usr/local/bin/ffmpeg
+    owner: root
+    group: root
+    mode: '0755'
+    remote_src: yes
+
+- name: set ffmpeg link
+  copy:
+    src: "/tmp/ffmpeg/{{ item }}"
+    dest: "/usr/local/bin/{{ item }}"
+    owner: root
+    group: root
+    mode: '0755'
+    remote_src: yes
+  with_items:
+    - ffmpeg
+    - ffprobe
+
+- name: Create a symbolic link for ffmpeg
+  file:
+    src: "/usr/local/bin/{{ item.src }}"
+    dest: "/usr/local/bin/{{ item.dest }}"
+    owner: root
+    group: root
+    state: link
+    mode: '0755'
+  with_items:
+    - { src: "ffmpeg", dest: "avconv" }
+    - { src: "ffprobe", dest: "avprobe" }
+
