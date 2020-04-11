@@ -1,0 +1,64 @@
+---
+- name: create group
+  group:
+    name: epgstation
+
+- name: create user
+  user:
+    name: epgstation
+    group: epgstation
+    create_home: yes
+
+- name: get epgstation
+  git:
+    repo: https://github.com/l3tnun/EPGStation.git
+    dest: /home/epgstation/EPGStation
+    clone: yes
+  become: yes
+  become_user: epgstation
+
+- name: npm install
+  command:
+    cmd: npm install
+    chdir: /home/epgstation/EPGStation
+  become: yes
+  become_user: epgstation
+
+- name: npm run build
+  command:
+    cmd: npm run build
+    chdir: /home/epgstation/EPGStation
+  become: yes
+  become_user: epgstation
+
+- name: copy config
+  template:
+    src: config.json.j2
+    dest: /home/epgstation/EPGStation/config/config.json
+  become: yes
+  become_user: epgstation
+
+- name: copy other config
+  copy:
+    src: "/home/epgstation/EPGStation/config/{{ item }}.sample.json"
+    dest: "/home/epgstation/EPGStation/config/{{ item }}.json"
+    remote_src: yes
+  with_items:
+    - operatorLogConfig
+    - serviceLogConfig
+  become: yes
+  become_user: epgstation
+
+- name: start epgstatin
+  command:
+    cmd: pm2 start dist/server/index.js --name "epgstation"
+    chdir: /home/epgstation/EPGStation
+  become: yes
+  become_user: epgstation
+
+- name: start epgstatin save
+  command:
+    cmd: pm2 save
+    chdir: /home/epgstation/EPGStation
+  become: yes
+  become_user: epgstation

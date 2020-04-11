@@ -10,9 +10,6 @@
     state: latest
     update_cache: yes
 
-#- name: Install a list of packages
-#  command: curl -sL https://deb.nodesource.com/setup_12.x | -E bash -
-
 - name: download setup_nodejs
   get_url:
     url: https://deb.nodesource.com/setup_12.x
@@ -25,7 +22,6 @@
   file:
     path: /tmp/setup_nodejs.sh
     state: absent
-
 
 - name: Install nodejs
   apt:
