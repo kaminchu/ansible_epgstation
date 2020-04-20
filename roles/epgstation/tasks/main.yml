@@ -25,12 +25,18 @@
   become: yes
   become_user: epgstation
 
+- name: check build directory
+  stat:
+    path: /home/epgstation/EPGStation/dist
+  register: build_dir
+
 - name: npm run build
   command:
     cmd: npm run build
     chdir: /home/epgstation/EPGStation
   become: yes
   become_user: epgstation
+  when: not build_dir.stat.exists
 
 - name: copy config
   template:
@@ -50,12 +56,17 @@
   become: yes
   become_user: epgstation
 
+- name: check pm2
+  command: pm2 status epgstation
+  register: pm2_status
+
 - name: start epgstatin
   command:
     cmd: pm2 start dist/server/index.js --name "epgstation"
     chdir: /home/epgstation/EPGStation
   become: yes
   become_user: epgstation
+  when: '"epgstation" in pm2_status.stdout'
 
 - name: start epgstatin save
   command:
@@ -63,3 +74,4 @@
     chdir: /home/epgstation/EPGStation
   become: yes
   become_user: epgstation
+  when: '"epgstation" in pm2_status.stdout'
