@@ -38,16 +38,26 @@
 - name: pm2 startup
   command: pm2 startup
 
+- name: install ffmpeg
+  apt:
+    pkg:
+    - ffmpeg
+    state: latest
+    update_cache: yes
+  when: use_apt_ffmpeg
+
 - name: download ffmpeg
   get_url:
     url: https://johnvansickle.com/ffmpeg/old-releases/ffmpeg-4.2.1-amd64-static.tar.xz
     dest: /tmp/ffmpeg.tar.xz
+  when: not use_apt_ffmpeg
 
 - name: make unarchive directory
   file:
     path: /tmp/ffmpeg
     state: directory
     force: yes
+  when: not use_apt_ffmpeg
 
 - name: unarchive ffmpeg
   unarchive:
@@ -57,6 +67,7 @@
       - --strip-components
       - "1"
     remote_src: yes
+  when: not use_apt_ffmpeg
 
 - name: set ffmpeg
   copy:
@@ -66,6 +77,7 @@
     group: root
     mode: '0755'
     remote_src: yes
+  when: not use_apt_ffmpeg
 
 - name: set ffmpeg link
   copy:
@@ -78,6 +90,7 @@
   with_items:
     - ffmpeg
     - ffprobe
+  when: not use_apt_ffmpeg
 
 - name: Create a symbolic link for ffmpeg
   file:
@@ -90,4 +103,5 @@
   with_items:
     - { src: "ffmpeg", dest: "avconv" }
     - { src: "ffprobe", dest: "avprobe" }
+  when: not use_apt_ffmpeg
 

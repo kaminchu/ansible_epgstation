@@ -4,4 +4,4 @@ epgstation_mirakurun_path: "http+unix://%2Fvar%2Frun%2Fmirakurun.sock/"
 epgstation_user: user
 epgstation_password: password
 epgstation_enable_vaapi: no
-tools_use_apt_ffmpeg: no
+use_apt_ffmpeg: no
