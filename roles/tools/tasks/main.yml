@@ -10,18 +10,26 @@
     state: latest
     update_cache: yes
 
+- name: check node
+  command: which node
+  register: check_node
+  ignore_errors: true
+
 - name: download setup_nodejs
   get_url:
     url: https://deb.nodesource.com/setup_12.x
     dest: /tmp/setup_nodejs.sh
+  when: check_node is failed
 
 - name: setup nodejs
   command: sh /tmp/setup_nodejs.sh
+  when: check_node is failed
 
 - name: cleanup setup_nodejs
   file:
     path: /tmp/setup_nodejs.sh
     state: absent
+  when: check_node is failed
 
 - name: Install nodejs
   apt:
@@ -29,14 +37,22 @@
     - nodejs
     state: latest
     update_cache: yes
+  when: check_node is failed
+
+- name: check pm2
+  command: which pm2
+  register: check_pm2
+  ignore_errors: true
 
 - name: Install "pm2" node.js package.
   npm:
     name: pm2
     global: yes
+  when: check_pm2 is failed
 
 - name: pm2 startup
   command: pm2 startup
+  when: check_pm2 is failed
 
 - name: install ffmpeg
   apt:
