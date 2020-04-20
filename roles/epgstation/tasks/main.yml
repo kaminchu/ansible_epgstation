@@ -73,11 +73,11 @@
 
 - name: start epgstatin
   command:
-    cmd: pm2 start dist/server/index.js --name "epgstation"
+    cmd: pm2 start dist/server/index.js --name "epgstation-app"
     chdir: /home/epgstation/EPGStation
   become: yes
   become_user: epgstation
-  when: '"epgstation" not in pm2_status.stdout'
+  when: '"epgstation-app" not in pm2_status.stdout'
 
 - name: start epgstatin save
   command:
@@ -85,4 +85,4 @@
     chdir: /home/epgstation/EPGStation
   become: yes
   become_user: epgstation
-  when: '"epgstation" not in pm2_status.stdout'
+  when: '"epgstation-app" not in pm2_status.stdout'
