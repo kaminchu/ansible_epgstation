@@ -18,17 +18,25 @@
   become: yes
   become_user: epgstation
 
+- name: check node_modules
+  stat:
+    path: /home/epgstation/EPGStation/node_modules
+  register: modules_dir
+  changed_when: no
+
 - name: npm install
   command:
     cmd: npm install
     chdir: /home/epgstation/EPGStation
   become: yes
   become_user: epgstation
+  when: not modules_dir.stat.exists
 
 - name: check build directory
   stat:
     path: /home/epgstation/EPGStation/dist
   register: build_dir
+  changed_when: no
 
 - name: npm run build
   command:

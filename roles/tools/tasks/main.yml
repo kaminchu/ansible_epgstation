@@ -13,7 +13,8 @@
 - name: check node
   command: which node
   register: check_node
-  ignore_errors: true
+  ignore_errors: yes
+  changed_when: no
 
 - name: download setup_nodejs
   get_url:
@@ -42,7 +43,8 @@
 - name: check pm2
   command: which pm2
   register: check_pm2
-  ignore_errors: true
+  ignore_errors: yes
+  changed_when: no
 
 - name: Install "pm2" node.js package.
   npm:
