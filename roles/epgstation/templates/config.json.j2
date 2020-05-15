@@ -3,8 +3,13 @@
     "serverPort": {{ epgstation_port }},
     "mirakurunPath": "{{ epgstation_mirakurun_path }}",
     "dbType": "sqlite3",
+{% if use_apt_ffmpeg %}
+    "ffmpeg": "/usr/bin/ffmpeg",
+    "ffprobe": "/usr/bin/ffprobe",
+{% else %}
     "ffmpeg": "/usr/local/bin/ffmpeg",
     "ffprobe": "/usr/local/bin/ffprobe",
+{% endif %}
     "maxEncode": 2,
     "basicAuth": {
         "user": "{{ epgstation_user }}",
@@ -21,7 +26,7 @@
 
     "recordedViewer": {
         "ios": "infuse://x-callback-url/play?url=http://ADDRESS",
-        "android": "intent://ADDRESS#Intent;package=com.mxtech.videoplayer.ad;type=video;scheme=http;end"
+        "android": "intent://ADDRESS#Intent;package=org.videolan.vlc;type=video;scheme=http;end"
     },
     "recordedDownloader": {
         "ios": "vlc-x-callback://x-callback-url/download?url=http://ADDRESS&filename=FILENAME",
@@ -30,6 +35,19 @@
 
     "maxStreaming": 2,
     "mpegTsStreaming": [
+{% if epgstation_enable_vaapi %}
+        {
+            "name": "720p",
+            "cmd": "%FFMPEG% -re -dual_mono_mode main -hwaccel vaapi -hwaccel_device /dev/dri/renderD128 -hwaccel_output_format vaapi -i pipe:0 -c:a copy -c:v h264_vaapi -vf deinterlace_vaapi,scale_vaapi=w=1280:h=-2 -qp 25 -f mpegts pipe:1"
+        },
+        {
+            "name": "480p",
+            "cmd": "%FFMPEG% -re -dual_mono_mode main -hwaccel vaapi -hwaccel_device /dev/dri/renderD128 -hwaccel_output_format vaapi -i pipe:0 -c:a copy -c:v h264_vaapi -vf deinterlace_vaapi,scale_vaapi=w=720:h=-2 -qp 25 -f mpegts pipe:1"
+        },
+        {
+            "name": "無変換"
+        }
+{% else %}
         {
             "name": "720p",
             "cmd": "%FFMPEG% -re -dual_mono_mode main -i pipe:0 -sn -threads 0 -c:a aac -ar 48000 -b:a 192k -ac 2 -c:v libx264 -vf yadif,scale=-2:720 -b:v 3000k -preset veryfast -y -f mpegts pipe:1"
@@ -41,6 +59,7 @@
         {
             "name": "無変換"
         }
+{% endif %}
     ],
     "mpegTsViewer": {
         "ios": "vlc-x-callback://x-callback-url/stream?url=http://ADDRESS",
@@ -93,6 +112,24 @@
         }
     ],
     "liveMP4": [
+{% if epgstation_enable_vaapi %}
+        {
+            "name": "720p",
+            "cmd": "%FFMPEG% -re -dual_mono_mode main -vaapi_device /dev/dri/renderD128 -i pipe:0 -vf format=nv12|vaapi,hwupload,deinterlace_vaapi,scale_vaapi=w=1280:h=720 -c:a aac -ar 48000 -ab 192k -ac 2 -c:v h264_vaapi -level 40 -aspect 16:9 -q 21 -movflags frag_keyframe+empty_moov+faststart+default_base_moof -y -f mp4 pipe:1"
+        },
+        {
+            "name": "480p",
+            "cmd": "%FFMPEG% -re -dual_mono_mode main -vaapi_device /dev/dri/renderD128 -i pipe:0 -vf format=nv12|vaapi,hwupload,deinterlace_vaapi,scale_vaapi=w=720:h=480 -c:a aac -ar 48000 -ab 128k -ac 2 -c:v h264_vaapi -level 40 -aspect 16:9 -q 21 -movflags frag_keyframe+empty_moov+faststart+default_base_moof -y -f mp4 pipe:1"
+        },
+        {
+            "name": "360p",
+            "cmd": "%FFMPEG% -re -dual_mono_mode main -vaapi_device /dev/dri/renderD128 -i pipe:0 -vf format=nv12|vaapi,hwupload,deinterlace_vaapi,scale_vaapi=w=640:h=360 -c:a aac -ar 48000 -ab 64k -ac 2 -c:v h264_vaapi -level 40 -aspect 16:9 -q 21 -movflags frag_keyframe+empty_moov+faststart+default_base_moof -y -f mp4 pipe:1"
+        },
+        {
+            "name": "180p",
+            "cmd": "%FFMPEG% -re -dual_mono_mode main -vaapi_device /dev/dri/renderD128 -i pipe:0 -vf format=nv12|vaapi,hwupload,deinterlace_vaapi,scale_vaapi=w=320:h=180 -c:a aac -ar 48000 -ab 32k -ac 2 -c:v h264_vaapi -level 40 -aspect 16:9 -q 21 -movflags frag_keyframe+empty_moov+faststart+default_base_moof -y -f mp4 pipe:1"
+        }
+{% else %}
         {
             "name": "720p",
             "cmd": "%FFMPEG% -re -dual_mono_mode main -i pipe:0 -sn -threads 0 -c:a aac -ar 48000 -b:a 192k -ac 2 -c:v libx264 -vf yadif,scale=-2:720 -b:v 3000k -profile:v baseline -preset veryfast -tune fastdecode,zerolatency -movflags frag_keyframe+empty_moov+faststart+default_base_moof -y -f mp4 pipe:1"
@@ -109,6 +146,7 @@
             "name": "180p",
             "cmd": "%FFMPEG% -re -dual_mono_mode main -i pipe:0 -sn -threads 0 -c:a aac -ar 48000 -b:a 32k -ac 2 -c:v libx264 -vf yadif,scale=-2:180 -b:v 500k -profile:v baseline -preset veryfast -tune fastdecode,zerolatency -movflags frag_keyframe+empty_moov+faststart+default_base_moof -y -f mp4 pipe:1"
         }
+{% endif %}
     ],
 
     "recordedStreaming": {
